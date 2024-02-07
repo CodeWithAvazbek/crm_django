@@ -19,6 +19,9 @@
       </li>
     {% else %}
       <li class="nav-item">
+        <a class="nav-link" href="{% url 'add_record' %}">Add_record</a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
       </li>
     {% endif %}

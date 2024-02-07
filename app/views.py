@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import SigUpForm
+from .forms import SigUpForm, AddRecordForm
+from .models import Record
 
 
 def home(request):
+    records = Record.objects.all()
+
     # check to see if logging in
     if request.method == 'POST':
         username = request.POST['username']
@@ -19,7 +22,7 @@ def home(request):
             messages.success(request, "There Was An Error Login in Please Tre Again ...")
             return redirect('home')
     else:
-        return render(request, "hello.html", {})
+        return render(request, "hello.html", {"records": records})
 
 
 def logout_user(request):
@@ -46,3 +49,39 @@ def register(request):
     else:
         form = SigUpForm()
         return render(request, "register.html", {'form': form})
+
+
+def costumer_record(request, pk):
+    record = Record.objects.get(id=pk)
+    return render(request, "record.html", {'record': record})
+
+
+def delete_record(request, pk):
+    record = Record.objects.get(id=pk)
+    if record:
+        record.delete()
+        return redirect('home')
+
+
+def add_record(request):
+    if request.method == "POST":
+        record_add = AddRecordForm(request.POST)
+        if record_add.is_valid():
+            record_add.save()
+            return redirect("home")
+        else:
+            return redirect('add_record')
+    else:
+        record_add = AddRecordForm()
+        return render(request, 'add_record.html',
+                      {'record_add': record_add})
+
+
+def update(request, pk):
+    update_record = Record.objects.get(id=pk)
+    form = AddRecordForm(request.POST or None, instance=update_record)
+    if form.is_valid():
+        form.save()
+        return redirect('home')
+    return render(request, 'update.html', {'form': form})
+
